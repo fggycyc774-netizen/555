@@ -1,0 +1,169 @@
+-- Load the Rayfield UI Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Create the Main Window
+local Window = Rayfield:CreateWindow({
+   Name = "Game Control Panel | Full Features",
+   Icon = 0,
+   LoadingTitle = "Loading System Interface...",
+   LoadingSubtitle = "by Assistant",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "MyGameSystemConfig",
+      FileName = "MainSettings"
+   },
+   Discord = {
+      Enabled = false
+   },
+   KeySystem = false
+})
+
+----------------------------------------------------
+-- TAB 1: Head Protections
+----------------------------------------------------
+local HeadTab = Window:CreateTab("Head Protections", 4483362458)
+
+HeadTab:CreateSection("1. Headshot Protection")
+
+local HeadshotToggle = HeadTab:CreateToggle({
+   Name = "Enable Helmet Protection",
+   CurrentValue = false,
+   Flag = "HelmetToggle",
+   Callback = function(Value)
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      
+      if Value then
+         -- Add a simulated Helmet Folder tag inside the character
+         if not character:FindFirstChild("Helmet") then
+            local helmetTag = Instance.new("Folder")
+            helmetTag.Name = "Helmet"
+            helmetTag.Parent = character
+         end
+         
+         Rayfield:Notify({
+            Title = "Protection Active",
+            Content = "Headshot damage reduction enabled!",
+            Duration = 3,
+            Image = 4483362458,
+         })
+      else
+         -- Remove the Helmet tag when disabled
+         local helmetTag = character:FindFirstChild("Helmet")
+         if helmetTag then
+            helmetTag:Destroy()
+         end
+      end
+   end,
+})
+
+HeadTab:CreateSection("2. Anti-Head Stacking")
+
+local AntiStackToggle = HeadTab:CreateToggle({
+   Name = "Disable Head Collision (CanTouch)",
+   CurrentValue = false,
+   Flag = "AntiStackToggle",
+   Callback = function(Value)
+      local player = game.Players.LocalPlayer
+      local character = player.Character
+      if character and character:FindFirstChild("Head") then
+         -- Adjust touch detection for the Head part
+         character.Head.CanTouch = not Value
+      end
+   end,
+})
+
+----------------------------------------------------
+-- TAB 2: Character Stats
+----------------------------------------------------
+local PlayerTab = Window:CreateTab("Character Stats", 4483362458)
+
+PlayerTab:CreateSection("Movement Controls")
+
+-- WalkSpeed Toggle
+PlayerTab:CreateToggle({
+   Name = "Speed Boost",
+   CurrentValue = false,
+   Flag = "SpeedBoostFlag",
+   Callback = function(Value)
+      local player = game.Players.LocalPlayer
+      if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+         player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Value and 32 or 16
+      end
+   end,
+})
+
+-- Jump Power Slider
+PlayerTab:CreateSlider({
+   Name = "Jump Power",
+   Range = {50, 200},
+   Increment = 5,
+   Suffix = "Power",
+   CurrentValue = 50,
+   Flag = "JumpPowerFlag",
+   Callback = function(Value)
+      local player = game.Players.LocalPlayer
+      if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+         player.Character:FindFirstChildOfClass("Humanoid").JumpPower = Value
+      end
+   end,
+})
+
+-- Reset Character Button
+PlayerTab:CreateButton({
+   Name = "Reset Character",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      if player.Character then
+         player.Character:BreakJoints()
+      end
+   end,
+})
+
+----------------------------------------------------
+-- TAB 3: Utilities & Settings
+----------------------------------------------------
+local UtilTab = Window:CreateTab("Utilities", 4483362458)
+
+UtilTab:CreateSection("Teleport System")
+
+UtilTab:CreateDropdown({
+   Name = "Select Teleport Target",
+   Options = {"Spawn", "Shop", "VIP Area"},
+   CurrentOption = {"Spawn"},
+   MultipleOptions = false,
+   Flag = "TeleportDropdown",
+   Callback = function(Options)
+      Rayfield:Notify({
+         Title = "Teleport",
+         Content = "Selected target: " .. tostring(Options[1]),
+         Duration = 3,
+         Image = 4483362458,
+      })
+   end,
+})
+
+UtilTab:CreateSection("Custom WalkSpeed Input")
+
+UtilTab:CreateInput({
+   Name = "Set Custom Speed",
+   PlaceholderText = "Type speed number...",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      local num = tonumber(Text)
+      if num then
+         local player = game.Players.LocalPlayer
+         if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = num
+         end
+      end
+   end,
+})
+
+-- Initial Loading Notification
+Rayfield:Notify({
+   Title = "System Loaded",
+   Content = "All features are ready to use!",
+   Duration = 4,
+   Image = 4483362458,
+})
